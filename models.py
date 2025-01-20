@@ -11,8 +11,6 @@ class User(db.Model):
     
     addresses = db.relationship('Address', back_populates='user', lazy=True)
 
-    def __repr__(self):
-        return f"<User {self.username}>"
 
 class Order(db.Model):
     __tablename__ = 'order'
@@ -38,5 +36,8 @@ class Address(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', back_populates='addresses')
 
-    def __repr__(self):
-        return f"<Address {self.name}, {self.city}>"
+    
+class TokenBlocklist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False)

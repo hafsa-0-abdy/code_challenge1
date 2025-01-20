@@ -29,36 +29,37 @@ def create_user():
         return jsonify({"message": "User created successfully"})
     
     
-@user_bp.route('/users/<int:user_id>', methods=['PUT'])
+@user_bp.route('/users', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
     data = request.json
-    user = User.query.get(user_id)
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
 
     if not user:
         abort(404, "User not found")
 
-    current_user_id = get_jwt_identity()
-    if user.id != current_user_id:
+    
+    if user.email != user_email:
         return jsonify({"error": "Unauthorized to update this user"}), 403
 
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
-    user.password = data.get('password', user.password)
 
     db.session.commit()
     return jsonify({"message": "User updated successfully"})
 
-@user_bp.route('/users/<int:user_id>', methods=['DELETE'])
+@user_bp.route('/users/delete', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
-    user = User.query.get(user_id)
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
 
     if not user:
         abort(404, "User not found")
 
-    current_user_id = get_jwt_identity()
-    if user.id != current_user_id:
+    
+    if user.email != user_email:
         return jsonify({"error": "Unauthorized to delete this user"}), 403
 
     db.session.delete(user)
